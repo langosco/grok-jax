@@ -162,7 +162,7 @@ def train(config: Mapping[str, Any]) -> None:
     state = updater.init(subkey, data)
 
     wandb.init(project=config["wandb"]["name"], config=config)
-    for _ in tqdm(range(train_config["max_steps"]),
+    for _ in tqdm(range(train_config["num_steps"]),
                         disable=not train_config["progress_bar"]):
         data = next(train_data)
         state, metrics = updater.update(state, data)
