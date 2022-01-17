@@ -161,7 +161,7 @@ def train(config: Mapping[str, Any]) -> None:
     data = next(train_data)
     state = updater.init(subkey, data)
 
-    wandb.init(project="local-grok-repro", config=config)
+    wandb.init(project=config["wandb"]["name"], config=config)
     for _ in tqdm(range(train_config["max_steps"]),
                         disable=not train_config["progress_bar"]):
         data = next(train_data)

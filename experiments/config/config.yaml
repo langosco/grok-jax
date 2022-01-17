@@ -14,5 +14,8 @@ train:
     log_every: 100
     progress_bar: true
 
+wandb:
+    name: "grok-reproduction"
+
 device: "cpu"
 seed: null
