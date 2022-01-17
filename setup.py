@@ -5,5 +5,15 @@ setup(name='grok-jax',
       install_requires=[
           'jax',
           'dm-haiku',
+          'wandb',
+          'tqdm',
+          'optax',
+          'hydra',
+          'omegaconf',
+          'numpy',
+          'torch',
+          'sympy',
+          'mod',
+          'blobfile',
           ]
       )
