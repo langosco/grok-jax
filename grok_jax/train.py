@@ -153,7 +153,7 @@ def train(config: Mapping[str, Any]) -> None:
     accuracy_fn = jit(functools.partial(accuracy, forward_fn.apply))
 
     optimizer = optax.chain(
-	    optax.adamw(train_config["learning_rate"], b1=0.9, b2=0.99))
+	    optax.adamw(train_config["learning_rate"], b1=0.9, b2=0.98))
 
     updater = Updater(forward_fn.init, loss_fn, accuracy_fn, optimizer)
 
