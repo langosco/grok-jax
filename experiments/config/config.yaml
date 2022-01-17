@@ -1,0 +1,17 @@
+model:
+    d_model: 128
+    num_heads: 4
+    num_layers: 2
+    dropout_rate: 0
+
+data:
+    train_percent: 40
+
+training:
+    learning_rate: 1e-3
+    max_steps: 1e4
+    batch_size: 512
+    log_every: 100
+
+device: "cpu"
+seed: null
