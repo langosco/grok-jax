@@ -4,7 +4,7 @@ from omegaconf import DictConfig, OmegaConf
 
 @hydra.main(config_path="config", config_name="config")
 def main(cfg : DictConfig) -> None:
-    cfg["train"]["run_steps"] = int(cfg["train"]["run_steps"])
+    cfg["train"]["num_steps"] = int(cfg["train"]["num_steps"])
     print("Config:")
     print(OmegaConf.to_yaml(cfg))
     print()
