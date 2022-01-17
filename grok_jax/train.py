@@ -99,7 +99,7 @@ class Updater:
         params = state['params']
         loss, g = jax.value_and_grad(self._loss_fn)(params, rng, data)
 
-        updates, opt_state = self._opt.update(g, state['opt_state'])
+        updates, opt_state = self._opt.update(g, state['opt_state'], params)
         params = optax.apply_updates(params, updates)
 
         new_state = {
@@ -153,7 +153,7 @@ def train(config: Mapping[str, Any]) -> None:
     accuracy_fn = jit(functools.partial(accuracy, forward_fn.apply))
 
     optimizer = optax.chain(
-        optax.adam(train_config["learning_rate"], b1=0.9, b2=0.99))
+	    optax.adamw(train_config["learning_rate"], b1=0.9, b2=0.99))
 
     updater = Updater(forward_fn.init, loss_fn, accuracy_fn, optimizer)
 
