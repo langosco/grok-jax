@@ -129,8 +129,11 @@ class Updater:
 
 def train(config: Mapping[str, Any]) -> None:
     data_config = config["data"]
-    train_config = config["training"]
-    rng_key = random.PRNGKey(config["seed"])
+    train_config = config["train"]
+    if config["seed"] is None:
+        raise ValueError("Need to set seed")
+    else:
+        rng_key = random.PRNGKey(config["seed"])
 
 
     # prepare data
@@ -145,12 +148,12 @@ def train(config: Mapping[str, Any]) -> None:
 
 
     # prepare model and optimizer
-    forward_fn = build_forward_fn(**config["model"])
+    forward_fn = build_forward_fn(**config["model"], vocab_size=VOCAB_SIZE)
     loss_fn = functools.partial(lm_loss_fn, forward_fn.apply, VOCAB_SIZE)
     accuracy_fn = jit(functools.partial(accuracy, forward_fn.apply))
 
     optimizer = optax.chain(
-        optax.adam(config["learning_rate"], b1=0.9, b2=0.99))
+        optax.adam(train_config["learning_rate"], b1=0.9, b2=0.99))
 
     updater = Updater(forward_fn.init, loss_fn, accuracy_fn, optimizer)
 
@@ -158,8 +161,9 @@ def train(config: Mapping[str, Any]) -> None:
     data = next(train_data)
     state = updater.init(subkey, data)
 
-
-    for _ in tqdm(range(config["max_steps"])):
+    wandb.init(project="local-grok-repro", config=config)
+    for _ in tqdm(range(train_config["max_steps"]),
+                        disable=not train_config["progress_bar"]):
         data = next(train_data)
         state, metrics = updater.update(state, data)
 

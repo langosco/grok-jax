@@ -141,4 +141,4 @@ def build_forward_fn(vocab_size: int, d_model: int, num_heads: int,
         # Reverse the embeddings (untied).
         return hk.Linear(vocab_size)(output_embeddings)
 
-    return forward_fn
+    return hk.transform(forward_fn)

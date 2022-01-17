@@ -7,11 +7,12 @@ model:
 data:
     train_percent: 40
 
-training:
+train:
     learning_rate: 1e-3
     max_steps: 1e4
     batch_size: 512
     log_every: 100
+    progress_bar: true
 
 device: "cpu"
 seed: null
