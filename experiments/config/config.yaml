@@ -15,7 +15,9 @@ train:
     progress_bar: true
 
 wandb:
-    name: "grok-reproduction"
+    project_name: grok-reproduction
+    tags: ['hpc']
 
-device: "cpu"
+
+device: cpu
 seed: null
