@@ -12,13 +12,13 @@ train:
     num_steps: 3e5
     batch_size: 512
     log_every: 100
-    progress_bar: true
+    progress_bar: false
     warmup_steps: 10
     weight_decay: 1
 
 wandb:
     project_name: grok-reproduction
-    tags: ['local']
+    tags: ['hpc']
 
 
 device: cpu
