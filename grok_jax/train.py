@@ -152,8 +152,16 @@ def train(config: Mapping[str, Any]) -> None:
     loss_fn = functools.partial(lm_loss_fn, forward_fn.apply, VOCAB_SIZE)
     accuracy_fn = jit(functools.partial(accuracy, forward_fn.apply))
 
+    lr = train_config["learning_rate"]
+    num_warmup_steps = train_config["warmup_steps"]
+    warmup_schedule = optax.linear_schedule(
+            init_value=lr/num_warmup_steps, 
+            end_value=lr, 
+            transition_steps=num_warmup_steps)
+
     optimizer = optax.chain(
-	    optax.adamw(train_config["learning_rate"], b1=0.9, b2=0.98))
+	    optax.adamw(1., b1=0.9, b2=0.98, weight_decay=train_config["weight_decay"]),
+            optax.scale_by_schedule(warmup_schedule))
 
     updater = Updater(forward_fn.init, loss_fn, accuracy_fn, optimizer)
 

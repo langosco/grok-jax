@@ -5,18 +5,20 @@ model:
     dropout_rate: 0
 
 data:
-    train_percent: 40
+    train_percent: 50
 
 train:
     learning_rate: 1e-3
-    num_steps: 1e5
+    num_steps: 3e5
     batch_size: 512
     log_every: 100
     progress_bar: true
+    warmup_steps: 10
+    weight_decay: 1
 
 wandb:
     project_name: grok-reproduction
-    tags: ['hpc']
+    tags: ['local']
 
 
 device: cpu
