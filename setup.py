@@ -15,5 +15,6 @@ setup(name='grok-jax',
           'sympy',
           'mod',
           'blobfile',
+          'flatdict',
           ]
       )
