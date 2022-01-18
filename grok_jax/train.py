@@ -26,6 +26,8 @@ from omegaconf import DictConfig, OmegaConf
 from grok_jax.transformer import build_forward_fn
 from grok_jax.data import ArithmeticDataset, ArithmeticIterator
 
+from flatdict import FlatDict
+
 VOCAB_SIZE = 120
 
 def accuracy(forward: callable,
@@ -83,6 +85,7 @@ class Updater:
         """Initializes state of the updater."""
         out_rng, init_rng = jax.random.split(rng)
         params = self._net_init(init_rng, data['text'])
+        params = {k: dict(v) for k, v in params.items()}  # unfreeze
         opt_state = self._opt.init(params)
         out = dict(
             step=np.array(0),
@@ -159,8 +162,32 @@ def train(config: Mapping[str, Any]) -> None:
             end_value=lr, 
             transition_steps=num_warmup_steps)
 
+    def not_layernorm(key):
+        return not "ln" in key
+
+    ln_mask = {'embed': True, # TODO
+    '~': True,
+    'transformer/h0_ln_1': False,
+    'transformer/h0_attn/query': True,
+    'transformer/h0_attn/key': True,
+    'transformer/h0_attn/value': True,
+    'transformer/h0_attn/linear': True,
+    'transformer/h0_ln_2': False,
+    'transformer/h0_mlp/linear': True,
+    'transformer/h0_mlp/linear_1': True,
+    'transformer/h1_ln_1': False,
+    'transformer/h1_attn/query': True,
+    'transformer/h1_attn/key': True,
+    'transformer/h1_attn/value': True,
+    'transformer/h1_attn/linear': True,
+    'transformer/h1_ln_2': False,
+    'transformer/h1_mlp/linear': True,
+    'transformer/h1_mlp/linear_1': True,
+    'transformer/ln_f': False,
+    'linear': True}
+
     optimizer = optax.chain(
-	    optax.adamw(1., b1=0.9, b2=0.98, weight_decay=train_config["weight_decay"]),
+	    optax.adamw(1., b1=0.9, b2=0.98, weight_decay=train_config["weight_decay"], mask=ln_mask),
             optax.scale_by_schedule(warmup_schedule))
 
     updater = Updater(forward_fn.init, loss_fn, accuracy_fn, optimizer)
@@ -170,7 +197,7 @@ def train(config: Mapping[str, Any]) -> None:
     state = updater.init(subkey, data)
 
     wandb_cfg = config["wandb"]
-    wandb.init(project=wandb_cfg["project_name"], config=config, tags=wandb_cfg["tags"])
+    wandb.init(project=wandb_cfg["project_name"], config=FlatDict(config, delimiter=".").as_dict(), tags=wandb_cfg["tags"])
     for _ in tqdm(range(train_config["num_steps"]),
                         disable=not train_config["progress_bar"]):
         data = next(train_data)
